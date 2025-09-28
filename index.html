@@ -76,13 +76,13 @@
         }
 
         .preset-btn {
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: none;
             color: white;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s, background-color 0.2s;
             padding: 8px 3px;
             line-height: 1.2;
             display: flex;
@@ -90,63 +90,19 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            text-shadow: 0 0 10px currentColor,
-                        0 0 20px currentColor,
-                        0 0 30px currentColor;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1),
-                       inset 0 0 15px rgba(255, 255, 255, 0.1),
-                       0 5px 15px rgba(0, 0, 0, 0.3);
             position: relative;
             aspect-ratio: 1;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            background: linear-gradient(
-                135deg,
-                rgba(255, 255, 255, 0.1) 0%,
-                rgba(255, 255, 255, 0.05) 50%,
-                rgba(255, 255, 255, 0.02) 100%
-            );
-            overflow: hidden;
-        }
-
-        .preset-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                45deg,
-                transparent 0%,
-                rgba(255, 255, 255, 0.1) 50%,
-                transparent 100%
-            );
-            transform: rotate(45deg);
-            animation: shimmer 3s infinite;
-            pointer-events: none;
-        }
-
-        @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .preset-btn:hover {
-            border-color: currentColor;
-            box-shadow: 0 0 30px currentColor,
-                       inset 0 0 20px currentColor,
-                       0 5px 20px rgba(0, 0, 0, 0.5);
-            text-shadow: 0 0 15px currentColor,
-                        0 0 25px currentColor,
-                        0 0 35px currentColor;
-            transform: translateY(-3px) scale(1.02);
+            transform: translateY(-1px);
+            filter: brightness(1.1);
         }
 
         .preset-btn:active {
-            transform: translateY(1px) scale(0.98);
-            box-shadow: 0 0 20px currentColor,
-                       inset 0 0 15px currentColor;
+            transform: translateY(1px);
+            filter: brightness(0.9);
         }
         
         .preset-btn::before {
@@ -163,50 +119,42 @@
         }
         
         @keyframes buttonFlash {
-            0% { transform: scale(1); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-            50% { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.4), 0 0 10px rgba(255,255,255,0.3); }
-            100% { transform: scale(1); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
         }
 
         .preset-btn[data-seconds="150"] {  /* Bulvytės */
-            --button-color: #FFD700;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #FFD700;
+            color: #000;
         }
         .preset-btn[data-minutes="2"].koldunai {  /* Koldūnai */
-            --button-color: #90EE90;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #90EE90;
+            color: #000;
         }
         .preset-btn[data-minutes="4"].ceburekai {  /* Čeburėkai */
-            --button-color: #4169E1;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #4169E1;
+            color: #fff;
         }
         .preset-btn[data-seconds="260"] {  /* Kepsneliai */
-            --button-color: #FFA500;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #FFA500;
+            color: #000;
         }
         .preset-btn[data-minutes="4"].popsai {  /* Popsai */
-            --button-color: #9932CC;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #9932CC;
+            color: #fff;
         }
         .preset-btn[data-seconds="330"] {  /* Sparneliai */
-            --button-color: #FF4444;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #FF4444;
+            color: #fff;
         }
         .preset-btn[data-seconds="270"] {  /* Blynai */
-            --button-color: #FF8C00;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #FF8C00;
+            color: #000;
         }
         .preset-btn[data-minutes="2"].duona {  /* Duona */
-            --button-color: #DEB887;
-            color: var(--button-color);
-            border-color: var(--button-color);
+            background: #DEB887;
+            color: #000;
         }
 
         .preset-btn:active {
@@ -507,6 +455,7 @@
     </script>
 </body>
 </html>
+
 
 
 
