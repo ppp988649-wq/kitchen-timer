@@ -235,11 +235,33 @@
         let audioContext = null;
         let isAudioInitialized = false;
 
-        function initializeAudio() {
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                isAudioInitialized = true;
-                document.getElementById('soundButton').style.backgroundColor = '#4CAF50';
+        async function initializeAudio() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // Проверяем работу звука коротким тестовым сигналом
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                    
+                    isAudioInitialized = true;
+                    document.getElementById('soundButton').style.backgroundColor = '#4CAF50';
+                    alert('Звук активирован! Если вы не услышали короткий тестовый сигнал, проверьте настройки звука на устройстве.');
+                }
+            } catch (e) {
+                console.error('Ошибка инициализации звука:', e);
+                alert('Ошибка при активации звука. Проверьте, что звук включен на устройстве и разрешен в браузере.');
+                document.getElementById('soundButton').style.backgroundColor = '#ff4444';
             }
         }
 
@@ -286,9 +308,25 @@
                 return;
             }
 
-            for (let i = 0; i < 5; i++) {
-                await playBeep();
-                await new Promise(resolve => setTimeout(resolve, 400));
+            // Проверяем состояние AudioContext
+            if (audioContext.state === 'suspended') {
+                try {
+                    await audioContext.resume();
+                } catch (e) {
+                    console.error('Ошибка при возобновлении AudioContext:', e);
+                    alert('Ошибка воспроизведения звука. Попробуйте перезагрузить страницу.');
+                    return;
+                }
+            }
+
+            try {
+                for (let i = 0; i < 5; i++) {
+                    await playBeep();
+                    await new Promise(resolve => setTimeout(resolve, 400));
+                }
+            } catch (e) {
+                console.error('Ошибка воспроизведения сигнала:', e);
+                alert('Проблема с воспроизведением звука. Проверьте настройки звука на устройстве.');
             }
         }
 
@@ -399,3 +437,4 @@
     </script>
 </body>
 </html>
+
