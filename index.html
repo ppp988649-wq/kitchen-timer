@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kitchen Timer">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" sizes="1024x1024" href="icon-1024.png">
+    <meta name="theme-color" content="#000000">
+    <title>Kitchen Timer</title>
+    <style>
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #000;
+            min-height: 100%;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            display: flex;
+            flex-direction: column;
+            color: white;
+            position: fixed;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .timers-container {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            height: 100%;
+            width: 100%;
+            gap: 5px;
+            padding: 5px;
+            flex: 1;
+            overflow: hidden;
+            padding-top: max(5px, env(safe-area-inset-top));
+            padding-bottom: max(5px, env(safe-area-inset-bottom));
+        }
+
+        .timer {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .timer-display {
+            font-size: 60px;
+            font-weight: 300;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 2px;
+            flex: 0 0 auto;
+            margin: 5px 0;
+            padding: env(safe-area-inset-top) 0 0 0;
+        }
+
+        .presets {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            flex: 1;
+            padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+        }
+
+        .preset-btn {
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 3px;
+            line-height: 1.2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            min-height: 60px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .preset-btn::before {
+            content: attr(data-number);
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .preset-btn.flashing {
+            animation: buttonFlash 1s infinite;
+        }
+        
+        @keyframes buttonFlash {
+            0% { transform: scale(1); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 4px 8px rgba(0,0,0,0.4), 0 0 10px rgba(255,255,255,0.3); }
+            100% { transform: scale(1); box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        }
+
+        .preset-btn[data-seconds="150"] {  /* Bulvytės */
+            background: #FFD700;
+            color: #000;
+            text-shadow: none;
+        }
+        .preset-btn[data-minutes="2"].koldunai {  /* Koldūnai */
+            background: #90EE90;
+            color: #000;
+            text-shadow: none;
+        }
+        .preset-btn[data-minutes="4"].ceburekai {  /* Čeburėkai */
+            background: #4169E1;
+        }
+        .preset-btn[data-seconds="260"] {  /* Kepsneliai */
+            background: #FFA500;
+        }
+        .preset-btn[data-minutes="4"].popsai {  /* Popsai */
+            background: #9932CC;
+        }
+        .preset-btn[data-seconds="330"] {  /* Sparneliai */
+            background: #FF4444;
+        }
+        .preset-btn[data-seconds="270"] {  /* Blynai */
+            background: #FF8C00;
+        }
+        .preset-btn[data-minutes="2"].duona {  /* Duona */
+            background: #8B4513;
+        }
+
+        .preset-btn:active {
+            transform: scale(0.95);
+            filter: brightness(85%);
+        }
+
+        .timer.running {
+            background: #2d2d2d;
+        }
+
+        .timer.running .timer-display {
+            color: #4CAF50;
+        }
+
+        .timer.finished .timer-display {
+            color: #f44336;
+            animation: flash 1s infinite;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (orientation: landscape) {
+            .timers-container {
+                grid-template-rows: none;
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .timer-display {
+                font-size: 50px;
+                margin: 2px 0;
+            }
+            .preset-btn {
+                font-size: 16px;
+                min-height: 50px;
+                padding: 5px 2px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .preset-btn {
+                font-size: 14px;
+                padding: 5px 1px;
+            }
+            .timer-display {
+                font-size: 40px;
+            }
+        }
+
+        @supports (padding: max(0px)) {
+            body {
+                padding-left: max(0px, env(safe-area-inset-left));
+                padding-right: max(0px, env(safe-area-inset-right));
+                padding-top: max(0px, env(safe-area-inset-top));
+                padding-bottom: max(0px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timers-container">
+        <div class="timer" id="timer1">
+            <div class="timer-display">00:00</div>
+            <div class="presets">
+                <button class="preset-btn" data-number="1" data-seconds="150">Bulvytės<br>2:30</button>
+                <button class="preset-btn koldunai" data-number="2" data-minutes="2">Koldūnai<br>2:00</button>
+                <button class="preset-btn ceburekai" data-number="3" data-minutes="4">Čeburėkai<br>4:00</button>
+                <button class="preset-btn" data-number="4" data-seconds="260">Kepsneliai<br>4:20</button>
+                <button class="preset-btn popsai" data-number="5" data-minutes="4">Popsai<br>4:00</button>
+                <button class="preset-btn" data-number="6" data-seconds="330">Sparneliai<br>5:30</button>
+                <button class="preset-btn" data-number="7" data-seconds="270">Blynai<br>4:30</button>
+                <button class="preset-btn duona" data-number="8" data-minutes="2">Duona<br>2:00</button>
+            </div>
+        </div>
+
+        <div class="timer" id="timer2">
+            <div class="timer-display">00:00</div>
+            <div class="presets">
+                <button class="preset-btn" data-number="1" data-seconds="150">Bulvytės<br>2:30</button>
+                <button class="preset-btn koldunai" data-number="2" data-minutes="2">Koldūnai<br>2:00</button>
+                <button class="preset-btn ceburekai" data-number="3" data-minutes="4">Čeburėkai<br>4:00</button>
+                <button class="preset-btn" data-number="4" data-seconds="260">Kepsneliai<br>4:20</button>
+                <button class="preset-btn popsai" data-number="5" data-minutes="4">Popsai<br>4:00</button>
+                <button class="preset-btn" data-number="6" data-seconds="330">Sparneliai<br>5:30</button>
+                <button class="preset-btn" data-number="7" data-seconds="270">Blynai<br>4:30</button>
+                <button class="preset-btn duona" data-number="8" data-minutes="2">Duona<br>2:00</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Регистрация Service Worker для работы PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        class Timer {
+            constructor(elementId) {
+                this.element = document.getElementById(elementId);
+                this.display = this.element.querySelector('.timer-display');
+                this.presetButtons = this.element.querySelectorAll('.preset-btn');
+                this.timeLeft = 0;
+                this.interval = null;
+                this.audioContext = null;
+
+                this.presetButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        if (!this.audioContext) {
+                            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        }
+                        if (button.hasAttribute('data-seconds')) {
+                            const seconds = parseInt(button.dataset.seconds);
+                            this.startTimer(seconds, button);
+                        } else {
+                            const minutes = parseInt(button.dataset.minutes);
+                            this.startTimer(minutes * 60, button);
+                        }
+                    });
+                });
+            }
+
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            startTimer(seconds, button) {
+                if (this.interval) {
+                    clearInterval(this.interval);
+                }
+
+                this.element.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.removeAttribute('data-last-pressed');
+                    btn.classList.remove('flashing');
+                });
+
+                if (button) {
+                    button.setAttribute('data-last-pressed', 'true');
+                }
+
+                this.timeLeft = seconds;
+                this.display.textContent = this.formatTime(this.timeLeft);
+                
+                this.element.classList.remove('finished');
+                this.element.classList.add('running');
+
+                this.interval = setInterval(() => {
+                    this.timeLeft--;
+                    this.display.textContent = this.formatTime(this.timeLeft);
+
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.interval);
+                        this.interval = null;
+                        this.element.classList.remove('running');
+                        this.element.classList.add('finished');
+                        
+                        const activeButton = this.element.querySelector('[data-last-pressed="true"]');
+                        if (activeButton) {
+                            activeButton.classList.add('flashing');
+                        }
+                        
+                        this.playAlarm();
+                    }
+                }, 1000);
+            }
+
+            playAlarm() {
+                if (!this.audioContext) return;
+
+                const playBeep = () => {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+
+                    const now = this.audioContext.currentTime;
+                    
+                    gainNode.gain.setValueAtTime(0.7, now);
+                    oscillator.frequency.setValueAtTime(880, now);
+                    oscillator.frequency.setValueAtTime(440, now + 0.25);
+                    gainNode.gain.setValueAtTime(0.7, now + 0.5);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1);
+
+                    oscillator.start(now);
+                    oscillator.stop(now + 1);
+                };
+
+                let count = 0;
+                const interval = setInterval(() => {
+                    playBeep();
+                    count++;
+                    if (count >= 5) {
+                        clearInterval(interval);
+                        const activeButton = this.element.querySelector('[data-last-pressed="true"]');
+                        if (activeButton) {
+                            activeButton.classList.remove('flashing');
+                        }
+                        this.element.classList.remove('finished');
+                    }
+                }, 1200);
+            }
+        }
+
+        const timer1 = new Timer('timer1');
+        const timer2 = new Timer('timer2');
+
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        function setAppHeight() {
+            const doc = document.documentElement;
+            doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+        }
+        window.addEventListener('resize', setAppHeight);
+        setAppHeight();
+    </script>
+</body>
+</html>
