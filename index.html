@@ -74,11 +74,11 @@
         }
 
         .preset-btn {
-            border: none;
+            border: 2px solid rgba(255, 255, 255, 0.2);
             color: white;
             font-size: 18px;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 0px;
             cursor: pointer;
             transition: all 0.3s;
             padding: 8px 3px;
@@ -88,10 +88,21 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 0 10px currentColor;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1),
+                       inset 0 0 15px rgba(255, 255, 255, 0.1);
             position: relative;
-            min-height: 60px;
+            aspect-ratio: 1;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        .preset-btn:hover {
+            border-color: currentColor;
+            box-shadow: 0 0 20px currentColor,
+                       inset 0 0 20px rgba(255, 255, 255, 0.2);
+            text-shadow: 0 0 15px currentColor;
+            transform: translateY(-2px);
         }
         
         .preset-btn::before {
@@ -114,32 +125,44 @@
         }
 
         .preset-btn[data-seconds="150"] {  /* Bulvytės */
-            background: #FFD700;
-            color: #000;
-            text-shadow: none;
+            background: rgba(255, 215, 0, 0.1);
+            color: #FFD700;
+            border-color: #FFD700;
         }
         .preset-btn[data-minutes="2"].koldunai {  /* Koldūnai */
-            background: #90EE90;
-            color: #000;
-            text-shadow: none;
+            background: rgba(144, 238, 144, 0.1);
+            color: #90EE90;
+            border-color: #90EE90;
         }
         .preset-btn[data-minutes="4"].ceburekai {  /* Čeburėkai */
-            background: #4169E1;
+            background: rgba(65, 105, 225, 0.1);
+            color: #4169E1;
+            border-color: #4169E1;
         }
         .preset-btn[data-seconds="260"] {  /* Kepsneliai */
-            background: #FFA500;
+            background: rgba(255, 165, 0, 0.1);
+            color: #FFA500;
+            border-color: #FFA500;
         }
         .preset-btn[data-minutes="4"].popsai {  /* Popsai */
-            background: #9932CC;
+            background: rgba(153, 50, 204, 0.1);
+            color: #9932CC;
+            border-color: #9932CC;
         }
         .preset-btn[data-seconds="330"] {  /* Sparneliai */
-            background: #FF4444;
+            background: rgba(255, 68, 68, 0.1);
+            color: #FF4444;
+            border-color: #FF4444;
         }
         .preset-btn[data-seconds="270"] {  /* Blynai */
-            background: #FF8C00;
+            background: rgba(255, 140, 0, 0.1);
+            color: #FF8C00;
+            border-color: #FF8C00;
         }
         .preset-btn[data-minutes="2"].duona {  /* Duona */
-            background: #8B4513;
+            background: rgba(139, 69, 19, 0.1);
+            color: #DEB887;
+            border-color: #DEB887;
         }
 
         .preset-btn:active {
@@ -440,4 +463,5 @@
     </script>
 </body>
 </html>
+
 
