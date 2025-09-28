@@ -281,21 +281,24 @@
 
                 const now = audioContext.currentTime;
 
-                // Первый звуковой сигнал (высокий)
-                oscillator.frequency.setValueAtTime(880, now);
-                gainNode.gain.setValueAtTime(0.7, now);
-
-                // Второй звуковой сигнал (низкий)
-                oscillator.frequency.setValueAtTime(440, now + 0.2);
-
-                // Плавное затухание
-                gainNode.gain.setValueAtTime(0.7, now + 0.4);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                // Первая часть сигнала (высокая частота)
+                oscillator.frequency.setValueAtTime(1046.50, now); // До третьей октавы
+                gainNode.gain.setValueAtTime(1.0, now); // Максимальная громкость
+                
+                // Вторая часть (средняя частота)
+                oscillator.frequency.setValueAtTime(783.99, now + 0.15); // Соль второй октавы
+                
+                // Третья часть (низкая частота)
+                oscillator.frequency.setValueAtTime(523.25, now + 0.3); // До второй октавы
+                
+                // Плавное затухание в конце
+                gainNode.gain.setValueAtTime(1.0, now + 0.45);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
 
                 oscillator.start(now);
-                oscillator.stop(now + 0.8);
+                oscillator.stop(now + 0.6);
 
-                return new Promise(resolve => setTimeout(resolve, 800));
+                return new Promise(resolve => setTimeout(resolve, 600));
             } catch (e) {
                 console.error('Error playing sound:', e);
                 return Promise.resolve();
@@ -320,9 +323,9 @@
             }
 
             try {
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 3; i++) {
                     await playBeep();
-                    await new Promise(resolve => setTimeout(resolve, 400));
+                    await new Promise(resolve => setTimeout(resolve, 200));
                 }
             } catch (e) {
                 console.error('Ошибка воспроизведения сигнала:', e);
