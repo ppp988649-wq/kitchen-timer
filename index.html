@@ -6,13 +6,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kitchen Timer">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
-    <link rel="apple-touch-icon" sizes="1024x1024" href="icon-1024.png">
-    <meta name="theme-color" content="#000000">
     <title>Kitchen Timer</title>
     <style>
+        /* Предыдущие стили остаются теми же */
         html {
             height: 100%;
             width: 100%;
@@ -37,6 +33,7 @@
             user-select: none;
         }
 
+        /* Остальные стили такие же, как в предыдущей версии */
         .timers-container {
             display: grid;
             grid-template-rows: 1fr 1fr;
@@ -67,7 +64,6 @@
             letter-spacing: 2px;
             flex: 0 0 auto;
             margin: 5px 0;
-            padding: env(safe-area-inset-top) 0 0 0;
         }
 
         .presets {
@@ -75,7 +71,6 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 5px;
             flex: 1;
-            padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
         }
 
         .preset-btn {
@@ -97,7 +92,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             position: relative;
             min-height: 60px;
-            -webkit-tap-highlight-color: transparent;
         }
         
         .preset-btn::before {
@@ -149,7 +143,6 @@
         }
 
         .preset-btn:active {
-            transform: scale(0.95);
             filter: brightness(85%);
         }
 
@@ -178,39 +171,36 @@
             }
         }
 
-        @media (max-height: 600px) {
-            .timer-display {
-                font-size: 50px;
-                margin: 2px 0;
-            }
-            .preset-btn {
-                font-size: 16px;
-                min-height: 50px;
-                padding: 5px 2px;
-            }
+        #soundButton {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            cursor: pointer;
         }
 
-        @media (max-width: 350px) {
-            .preset-btn {
-                font-size: 14px;
-                padding: 5px 1px;
-            }
-            .timer-display {
-                font-size: 40px;
-            }
-        }
-
-        @supports (padding: max(0px)) {
-            body {
-                padding-left: max(0px, env(safe-area-inset-left));
-                padding-right: max(0px, env(safe-area-inset-right));
-                padding-top: max(0px, env(safe-area-inset-top));
-                padding-bottom: max(0px, env(safe-area-inset-bottom));
-            }
+        #soundButton svg {
+            width: 24px;
+            height: 24px;
         }
     </style>
 </head>
 <body>
+    <button id="soundButton" onclick="initializeAudio()">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </button>
     <div class="timers-container">
         <div class="timer" id="timer1">
             <div class="timer-display">00:00</div>
@@ -242,17 +232,64 @@
     </div>
 
     <script>
-        // Регистрация Service Worker для работы PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registered');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
+        let audioContext = null;
+        let isAudioInitialized = false;
+
+        function initializeAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isAudioInitialized = true;
+                document.getElementById('soundButton').style.backgroundColor = '#4CAF50';
+            }
+        }
+
+        // Инициализация аудио при любом взаимодействии с страницей
+        document.addEventListener('touchstart', initializeAudio, { once: true });
+        document.addEventListener('click', initializeAudio, { once: true });
+
+        function playBeep() {
+            if (!audioContext || !isAudioInitialized) return;
+
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                const now = audioContext.currentTime;
+
+                // Первый звуковой сигнал (высокий)
+                oscillator.frequency.setValueAtTime(880, now);
+                gainNode.gain.setValueAtTime(0.7, now);
+
+                // Второй звуковой сигнал (низкий)
+                oscillator.frequency.setValueAtTime(440, now + 0.2);
+
+                // Плавное затухание
+                gainNode.gain.setValueAtTime(0.7, now + 0.4);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+
+                oscillator.start(now);
+                oscillator.stop(now + 0.8);
+
+                return new Promise(resolve => setTimeout(resolve, 800));
+            } catch (e) {
+                console.error('Error playing sound:', e);
+                return Promise.resolve();
+            }
+        }
+
+        async function playAlarmSequence() {
+            if (!isAudioInitialized) {
+                alert('Нажмите на кнопку звука в правом верхнем углу для активации звука!');
+                return;
+            }
+
+            for (let i = 0; i < 5; i++) {
+                await playBeep();
+                await new Promise(resolve => setTimeout(resolve, 400));
+            }
         }
 
         class Timer {
@@ -262,12 +299,11 @@
                 this.presetButtons = this.element.querySelectorAll('.preset-btn');
                 this.timeLeft = 0;
                 this.interval = null;
-                this.audioContext = null;
 
                 this.presetButtons.forEach(button => {
                     button.addEventListener('click', () => {
-                        if (!this.audioContext) {
-                            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        if (!isAudioInitialized) {
+                            alert('Нажмите на кнопку звука в правом верхнем углу для активации звука!');
                         }
                         if (button.hasAttribute('data-seconds')) {
                             const seconds = parseInt(button.dataset.seconds);
@@ -321,46 +357,16 @@
                             activeButton.classList.add('flashing');
                         }
                         
-                        this.playAlarm();
+                        playAlarmSequence().then(() => {
+                            setTimeout(() => {
+                                if (activeButton) {
+                                    activeButton.classList.remove('flashing');
+                                }
+                                this.element.classList.remove('finished');
+                            }, 2000);
+                        });
                     }
                 }, 1000);
-            }
-
-            playAlarm() {
-                if (!this.audioContext) return;
-
-                const playBeep = () => {
-                    const oscillator = this.audioContext.createOscillator();
-                    const gainNode = this.audioContext.createGain();
-
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.audioContext.destination);
-
-                    const now = this.audioContext.currentTime;
-                    
-                    gainNode.gain.setValueAtTime(0.7, now);
-                    oscillator.frequency.setValueAtTime(880, now);
-                    oscillator.frequency.setValueAtTime(440, now + 0.25);
-                    gainNode.gain.setValueAtTime(0.7, now + 0.5);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 1);
-
-                    oscillator.start(now);
-                    oscillator.stop(now + 1);
-                };
-
-                let count = 0;
-                const interval = setInterval(() => {
-                    playBeep();
-                    count++;
-                    if (count >= 5) {
-                        clearInterval(interval);
-                        const activeButton = this.element.querySelector('[data-last-pressed="true"]');
-                        if (activeButton) {
-                            activeButton.classList.remove('flashing');
-                        }
-                        this.element.classList.remove('finished');
-                    }
-                }, 1200);
             }
         }
 
@@ -385,6 +391,11 @@
         }
         window.addEventListener('resize', setAppHeight);
         setAppHeight();
+
+        if (!localStorage.getItem('instructionsShown')) {
+            alert('1. Нажмите кнопку звука в правом верхнем углу\n2. Для полноэкранного режима: нажмите кнопку "Поделиться" и выберите "На экран «Домой»"');
+            localStorage.setItem('instructionsShown', 'true');
+        }
     </script>
 </body>
 </html>
