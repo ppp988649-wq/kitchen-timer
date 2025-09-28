@@ -48,12 +48,14 @@
         }
 
         .timer {
-            background: #1a1a1a;
-            border-radius: 15px;
-            padding: 10px;
+            background: linear-gradient(145deg, #1a1a1a 0%, #0a0a0a 100%);
+            border-radius: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .timer-display {
@@ -74,13 +76,13 @@
         }
 
         .preset-btn {
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
             color: white;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            border-radius: 0px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 8px 3px;
             line-height: 1.2;
             display: flex;
@@ -88,21 +90,63 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            text-shadow: 0 0 10px currentColor;
+            text-shadow: 0 0 10px currentColor,
+                        0 0 20px currentColor,
+                        0 0 30px currentColor;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.1),
-                       inset 0 0 15px rgba(255, 255, 255, 0.1);
+                       inset 0 0 15px rgba(255, 255, 255, 0.1),
+                       0 5px 15px rgba(0, 0, 0, 0.3);
             position: relative;
             aspect-ratio: 1;
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                rgba(255, 255, 255, 0.02) 100%
+            );
+            overflow: hidden;
+        }
+
+        .preset-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 100%
+            );
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
         }
 
         .preset-btn:hover {
             border-color: currentColor;
+            box-shadow: 0 0 30px currentColor,
+                       inset 0 0 20px currentColor,
+                       0 5px 20px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 15px currentColor,
+                        0 0 25px currentColor,
+                        0 0 35px currentColor;
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .preset-btn:active {
+            transform: translateY(1px) scale(0.98);
             box-shadow: 0 0 20px currentColor,
-                       inset 0 0 20px rgba(255, 255, 255, 0.2);
-            text-shadow: 0 0 15px currentColor;
-            transform: translateY(-2px);
+                       inset 0 0 15px currentColor;
         }
         
         .preset-btn::before {
@@ -125,44 +169,44 @@
         }
 
         .preset-btn[data-seconds="150"] {  /* Bulvytės */
-            background: rgba(255, 215, 0, 0.1);
-            color: #FFD700;
-            border-color: #FFD700;
+            --button-color: #FFD700;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
         .preset-btn[data-minutes="2"].koldunai {  /* Koldūnai */
-            background: rgba(144, 238, 144, 0.1);
-            color: #90EE90;
-            border-color: #90EE90;
+            --button-color: #90EE90;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
         .preset-btn[data-minutes="4"].ceburekai {  /* Čeburėkai */
-            background: rgba(65, 105, 225, 0.1);
-            color: #4169E1;
-            border-color: #4169E1;
+            --button-color: #4169E1;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
         .preset-btn[data-seconds="260"] {  /* Kepsneliai */
-            background: rgba(255, 165, 0, 0.1);
-            color: #FFA500;
-            border-color: #FFA500;
+            --button-color: #FFA500;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
         .preset-btn[data-minutes="4"].popsai {  /* Popsai */
-            background: rgba(153, 50, 204, 0.1);
-            color: #9932CC;
-            border-color: #9932CC;
+            --button-color: #9932CC;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
         .preset-btn[data-seconds="330"] {  /* Sparneliai */
-            background: rgba(255, 68, 68, 0.1);
-            color: #FF4444;
-            border-color: #FF4444;
+            --button-color: #FF4444;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
         .preset-btn[data-seconds="270"] {  /* Blynai */
-            background: rgba(255, 140, 0, 0.1);
-            color: #FF8C00;
-            border-color: #FF8C00;
+            --button-color: #FF8C00;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
         .preset-btn[data-minutes="2"].duona {  /* Duona */
-            background: rgba(139, 69, 19, 0.1);
-            color: #DEB887;
-            border-color: #DEB887;
+            --button-color: #DEB887;
+            color: var(--button-color);
+            border-color: var(--button-color);
         }
 
         .preset-btn:active {
@@ -463,5 +507,6 @@
     </script>
 </body>
 </html>
+
 
 
